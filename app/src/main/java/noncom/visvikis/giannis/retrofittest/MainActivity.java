@@ -32,8 +32,10 @@ public class MainActivity extends AppCompatActivity implements InterFragmentComm
     private final String MENU_FRAGMENT_TAG = "MENU_FRAGMENT_TAG";
     private final String MAIN_FRAGMENT_TAG = "MAIN_FRAGMENT_TAG";
     private final String DRAWER_OPEN_TAG = "DRAWER_OPEN_TAG";
+    private final String DRAWER_PRESENT_TAG = "DRAWER_PRESENT_TAG";
 
     private boolean userSeenDrawer = false;
+    private boolean isDrawerPresent = false;
 
     private DrawerLayout mDrawerLayout;
     private NavigationView mNavigationView;
@@ -52,7 +54,7 @@ public class MainActivity extends AppCompatActivity implements InterFragmentComm
         View root = getLayoutInflater().inflate(R.layout.activity_main, null);
         setContentView(root);
 
-        String tag = (String) root.getTag();
+        isDrawerPresent = root.getTag() != null;
 
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -66,17 +68,17 @@ public class MainActivity extends AppCompatActivity implements InterFragmentComm
 
             menuFragment = new MenuFragment();
 
-            if(tag != null)
+            if(isDrawerPresent)
             {
                 Bundle menuArgs = new Bundle();
                 menuArgs.putString(MenuFragment.ARGS_TAG, "whatever");
                 menuFragment.setArguments(menuArgs);
             }
 
-            mainFragment = new MainFragment();
+            //mainFragment = new MainFragment();
 
             fragmentTransaction.add(R.id.menu_frag_place, menuFragment, MENU_FRAGMENT_TAG);
-            fragmentTransaction.add(R.id.main_frag_place, mainFragment, MAIN_FRAGMENT_TAG);
+            //fragmentTransaction.add(R.id.main_frag_place, mainFragment, MAIN_FRAGMENT_TAG);
 
             retainedFragment = new RetainedFragment();
             fragmentTransaction.add(retainedFragment, RETAINED_FRAGMENT_TAG);
@@ -90,14 +92,11 @@ public class MainActivity extends AppCompatActivity implements InterFragmentComm
             mainFragment = (MainFragment) fragmentManager.findFragmentByTag(MAIN_FRAGMENT_TAG);
 
             userSeenDrawer = savedInstanceState.getBoolean(DRAWER_OPEN_TAG);
+            isDrawerPresent = savedInstanceState.getBoolean(DRAWER_PRESENT_TAG);
         }
 
 
-        //TODO remember to close drawers when any button is selected in the navigation drawer
-        //mDrawerLayout.closeDrawers();
-
-
-        if(tag != null)//small screen mode, navigation drawer present. Set the drawer and handle start click here, handle in menu fragment otherwise
+        if(isDrawerPresent)//small screen mode, navigation drawer present. Set the drawer and handle start click here, handle in menu fragment otherwise
         {
 
             ActionBar actionbar = getSupportActionBar();
@@ -135,7 +134,7 @@ public class MainActivity extends AppCompatActivity implements InterFragmentComm
         }
 
 
-        if(tag != null) //the adview belongs here in drawer. In menu fragment otherwise
+        if(isDrawerPresent) //the adview belongs here in drawer. In menu fragment otherwise
         {
             //Remember to uncomment in the menu fragment as well
             //MobileAds.initialize(getActivity(), put the app id from admob here);
@@ -167,6 +166,7 @@ public class MainActivity extends AppCompatActivity implements InterFragmentComm
         super.onSaveInstanceState(outState);
 
         outState.putBoolean(DRAWER_OPEN_TAG, userSeenDrawer);
+        outState.putBoolean(DRAWER_PRESENT_TAG, isDrawerPresent);
     }
 
 
@@ -203,8 +203,15 @@ public class MainActivity extends AppCompatActivity implements InterFragmentComm
     @Override
     public void onBackPressed()
     {
-        super.onBackPressed();
+
+        if (isDrawerPresent && !mDrawerLayout.isDrawerOpen(mNavigationView)) {
+            mDrawerLayout.openDrawer(mNavigationView);
+        }
+        else {
+            super.onBackPressed();
+        }
     }
+
 
     @Override
     public RecyclerView.Adapter getTheAdapter()
