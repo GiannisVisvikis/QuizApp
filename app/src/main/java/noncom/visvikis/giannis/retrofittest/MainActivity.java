@@ -5,8 +5,11 @@ package noncom.visvikis.giannis.retrofittest;
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdView;
 
+import android.content.Intent;
+
 import android.os.Bundle;
 import android.os.PersistableBundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.FragmentManager;
@@ -18,6 +21,7 @@ import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -25,17 +29,21 @@ import android.view.View;
 
 public class MainActivity extends AppCompatActivity implements InterFragmentCommunication
 {
-
-    private final String API_TOKEN_REQUEST_URL = "https://opentdb.com/api_token.php?command=request";
-
     private final String RETAINED_FRAGMENT_TAG = "RETAINED_FRAGMENT_TAG";
     private final String MENU_FRAGMENT_TAG = "MENU_FRAGMENT_TAG";
     private final String MAIN_FRAGMENT_TAG = "MAIN_FRAGMENT_TAG";
     private final String DRAWER_OPEN_TAG = "DRAWER_OPEN_TAG";
     private final String DRAWER_PRESENT_TAG = "DRAWER_PRESENT_TAG";
+    private final String API_TOKEN_TAG = "API_TOKEN_TAG";
+
+    private final int TOKEN_LOADER_CODE = 1;
+    private final int CONNECTION_LOADER_CODE = 2;
+
+    private String apiToken = ""; //start empty, will change inside onCreate;
 
     private boolean userSeenDrawer = false;
     private boolean isDrawerPresent = false;
+
 
     private DrawerLayout mDrawerLayout;
     private NavigationView mNavigationView;
@@ -53,6 +61,8 @@ public class MainActivity extends AppCompatActivity implements InterFragmentComm
 
         View root = getLayoutInflater().inflate(R.layout.activity_main, null);
         setContentView(root);
+
+        checkInternetConnection();
 
         isDrawerPresent = root.getTag() != null;
 
@@ -93,6 +103,7 @@ public class MainActivity extends AppCompatActivity implements InterFragmentComm
 
             userSeenDrawer = savedInstanceState.getBoolean(DRAWER_OPEN_TAG);
             isDrawerPresent = savedInstanceState.getBoolean(DRAWER_PRESENT_TAG);
+            apiToken = savedInstanceState.getString(API_TOKEN_TAG);
         }
 
 
@@ -134,7 +145,7 @@ public class MainActivity extends AppCompatActivity implements InterFragmentComm
         }
 
 
-        if(isDrawerPresent) //the adview belongs here in drawer. In menu fragment otherwise
+        if(isDrawerPresent) //the adview belongs here in drawer layout. In menu fragment otherwise
         {
             //Remember to uncomment in the menu fragment as well
             //MobileAds.initialize(getActivity(), put the app id from admob here);
@@ -147,7 +158,6 @@ public class MainActivity extends AppCompatActivity implements InterFragmentComm
         }
 
     }
-
 
 
 
@@ -167,6 +177,7 @@ public class MainActivity extends AppCompatActivity implements InterFragmentComm
 
         outState.putBoolean(DRAWER_OPEN_TAG, userSeenDrawer);
         outState.putBoolean(DRAWER_PRESENT_TAG, isDrawerPresent);
+        outState.putString(API_TOKEN_TAG, apiToken);
     }
 
 
@@ -228,6 +239,92 @@ public class MainActivity extends AppCompatActivity implements InterFragmentComm
     @Override
     public void closeTheDrawer(){
         mDrawerLayout.closeDrawer(mNavigationView);
+    }
+
+    @Override
+    public String getApiToken()
+    {
+        return this.apiToken;
+    }
+
+
+
+    private void checkInternetConnection()
+    {
+
+        getSupportLoaderManager().restartLoader(CONNECTION_LOADER_CODE, null, new android.support.v4.app.LoaderManager.LoaderCallbacks<Boolean>()
+        {
+            @NonNull
+            @Override
+            public android.support.v4.content.Loader<Boolean> onCreateLoader(int id, @Nullable Bundle args)
+            {
+                return new ConnectivityCheckLoader(MainActivity.this);
+            }
+
+            @Override
+            public void onLoadFinished(@NonNull android.support.v4.content.Loader<Boolean> loader, Boolean data)
+            {
+                if(data && apiToken.equalsIgnoreCase("")) //if not empty, I already got one
+                {
+                    requestToken();
+                }
+                else if(!data) // no active connection
+                {
+                    Intent noWifiIntent = new Intent(getApplicationContext(), NoConnectionActivity.class);
+                    startActivity(noWifiIntent);
+                    MainActivity.this.finish();
+                }
+            }
+
+            @Override
+            public void onLoaderReset(@NonNull android.support.v4.content.Loader<Boolean> loader)
+            {
+
+            }
+        });
+    }
+
+
+
+
+    private void requestToken()
+    {
+        //request TOKEN. Checked already whether I got one yet or not
+
+        getSupportLoaderManager().initLoader(TOKEN_LOADER_CODE, null, new android.support.v4.app.LoaderManager.LoaderCallbacks<Object[]>()
+        {
+            @NonNull
+            @Override
+            public android.support.v4.content.Loader<Object[]> onCreateLoader(int id, @Nullable Bundle args)
+            {
+                return new ApiTokenLoader(MainActivity.this);
+            }
+
+            @Override
+            public void onLoadFinished(@NonNull android.support.v4.content.Loader<Object[]> loader, Object[] data)
+            {
+                if(data[0] != null) // if it is null, the connection was not successful, something went wrong
+                {
+                    apiToken = (String) data[1];
+
+                    Log.e("TOKEN", apiToken);
+                }
+                else
+                {
+                    Intent noResponseIntent = new Intent(getApplicationContext(), NoResponseActivity.class);
+                    startActivity(noResponseIntent);
+                    MainActivity.this.finish();
+                }
+
+            }
+
+            @Override
+            public void onLoaderReset(@NonNull android.support.v4.content.Loader<Object[]> loader)
+            {
+
+            }
+        });
+
     }
 
 

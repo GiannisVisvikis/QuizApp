@@ -9,4 +9,5 @@ public interface InterFragmentCommunication
     RecyclerView.Adapter getTheAdapter();
 
     void closeTheDrawer();
+    String getApiToken();
 }

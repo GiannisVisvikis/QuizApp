@@ -18,6 +18,8 @@
     <string name="drawer_close">DRAWER CLOSED</string>
     <string name="share">Share</string>
     <string name="drawer">drawer</string>
+    <string name="api_not_responding">REMOTE SERVER NOT RESPONDING\nPLEASE TRY AGAIN LATER</string>
+    <string name="no_connection">NO INTERNET CONNECTION\nACTIVATE AND TAP TO RETRY</string>
 
 
     <string-array name="num_questions_options">
