@@ -49,7 +49,6 @@ public class ApiTokenLoader extends AsyncTaskLoader<Object[]>
     @Override
     public Object[] loadInBackground()
     {
-
         Object[] result = new Object[2];
 
         HttpURLConnection con = null;
@@ -86,9 +85,9 @@ public class ApiTokenLoader extends AsyncTaskLoader<Object[]>
 
                     result[1] = token;
                 }
-                catch (JSONException je) //just in case something goes wrong, set response as a failure, blame the API, who cares
+                catch (JSONException je) //just in case something goes wrong
                 {
-                    Log.e("ApiTokenLoader", je.getMessage());
+                    Log.e("ApiTknLdr/JSNXcptn", je.getMessage());
                 }
 
             }
@@ -124,10 +123,8 @@ public class ApiTokenLoader extends AsyncTaskLoader<Object[]>
 
         }
 
-
         return result ;
     }
-
 
 
 

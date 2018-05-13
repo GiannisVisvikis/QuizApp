@@ -8,6 +8,7 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.AppCompatButton;
 import android.support.v7.widget.AppCompatSpinner;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -36,6 +37,7 @@ public class MenuFragment extends Fragment
     private final String CATEGORY_QUESTIONS_TAG = "CATEGORY_OF_QUESTIONS";
     private final String TYPE_QUESTIONS_TAG = "TYPE_OF_QUESTIONS";
     private final String DIFFICULTY_QUESTIONS_TAG = "DIFFICULTY_OF_QUESTIONS";
+    private String photoPath = "";
 
     public static final String ARGS_TAG = "ARGS_TAG";
 
@@ -113,7 +115,10 @@ public class MenuFragment extends Fragment
             {
                 //TODO Handle click, start a request via retrofit, get the questions, produce the adapter and set it to the main fragment's recycler view through intecommunication interface
 
+                String query = formQuery();
+                Log.e("MnuFgrmnt/StrtBttn", "Query is " + query);
 
+                read api documentation again about response codes. Might need to reset the token again or something else
 
                 if(getArguments() != null) //drawer layout present
                 {
@@ -168,6 +173,179 @@ public class MenuFragment extends Fragment
     }
 
 
+
+    private String formQuery(){
+
+        String result = ApiInterface.BASE_URL;
+
+        String amount = numQuestionsSpinner.getSelectedItem().toString();
+        result = result + "amount=" + amount;
+
+        String token = act.getApiToken();
+
+        if(!token.equalsIgnoreCase(""))
+            result = result + "&token=" + token;
+
+        String category = categorySpinner.getSelectedItem().toString();
+        String[] categoryArray = getCategory(category);
+        photoPath = categoryArray[1];
+        result = result + "&category=" + categoryArray[0];
+
+        String difficulty = difficultySpinner.getSelectedItem().toString();
+        //make first letter lower
+        difficulty = Character.toLowerCase(difficulty.charAt(0)) + difficulty.substring(1);
+        result = result + "&difficulty=" + difficulty;
+
+        String type = typeSpinner.getSelectedItem().toString();
+        if(type.contains("True"))
+            type = "boolean";
+        else
+            type = "multiple";
+        result = result + "&type=" + type;
+
+        return result;
+    }
+
+
+    /**
+     * Will contain the category index fpr the api query and file names of the photos
+     * @param tag
+     * @return
+     */
+    private String[] getCategory(String tag){
+
+        String[] result = new String[2];
+
+        switch (tag){
+
+            case "Animals":
+                result[0] = "27";
+                result[1] = "animals.jpg";
+                break;
+
+            case "Anime/Manga":
+                result[0] = "31";
+                result[1] = "manga.jpg";
+                break;
+
+            case "Arts":
+                result[0] = "25";
+                result[1] = "art.jpg";
+                break;
+
+            case "Board Games":
+                result[0] = "16";
+                result[1] = "games.jpg";
+                break;
+
+            case "Books":
+                result[0] = "10";
+                result[1] = "books.jpg";
+                break;
+
+            case "Cartoons":
+                result[0] = "32";
+                result[1] = "animations.jpg";
+                break;
+
+            case "Celebrities":
+                result[0] = "26";
+                result[1] = "celebrities.jpg";
+                break;
+
+            case "Comics":
+                result[0] = "29";
+                result[1] = "comics.jpg";
+                break;
+
+            case "Computers":
+                result[0] = "18";
+                result[1] = "computers.jpg";
+                break;
+
+            case "Films":
+                result[0] = "11";
+                result[1] = "film.jpg";
+                break;
+
+            case "Gadgets":
+                result[0] = "30";
+                result[1] = "gadgets.jpg";
+                break;
+
+            case "General":
+                result[0] = "9";
+                result[1] = "knowledge.jpg";
+                break;
+
+            case "Geography":
+                result[0] = "22";
+                result[1] = "geography.jpg";
+                break;
+
+            case "History":
+                result[0] = "23";
+                result[1] = "history.jpg";
+                break;
+
+            case "Mathematics":
+                result[0] = "19";
+                result[1] = "mathematics.jpg";
+                break;
+
+            case "Music":
+                result[0] = "12";
+                result[1] = "music.jpg";
+                break;
+
+            case "Musicals/Theater":
+                result[0] = "13";
+                result[1] = "theatres.jpg";
+                break;
+
+            case "Mythology":
+                result[0] = "20";
+                result[1] = "mythology.jpg";
+                break;
+
+            case "Politics":
+                result[0] = "24";
+                result[1] = "politics";
+                break;
+
+            case "Science/Nature":
+                result[0] = "17";
+                result[1] = "nature.jpg";
+                break;
+
+            case "Sports":
+                result[0] = "21";
+                result[1] = "sports.jpg";
+                break;
+
+            case "Television":
+                result[0] = "14";
+                result[1] = "television.jpg";
+                break;
+
+            case "Vehicles":
+                result[0] = "28";
+                result[1] = "vehicles.jpg";
+                break;
+
+            case "Video Games":
+                result[0] = "15";
+                result[1] = "games.jpg";
+                break;
+
+            default: //case Any Category
+                result[0] = "";
+                result[1] = "knowledge";
+                break;
+        }
+
+        return result;
+    }
 
 
 }
