@@ -118,7 +118,7 @@ public class MenuFragment extends Fragment
                 String query = formQuery();
                 Log.e("MnuFgrmnt/StrtBttn", "Query is " + query);
 
-                read api documentation again about response codes. Might need to reset the token again or something else
+                //TODO read api documentation again about response codes. Might need to reset the token again or something else
 
                 if(getArguments() != null) //drawer layout present
                 {

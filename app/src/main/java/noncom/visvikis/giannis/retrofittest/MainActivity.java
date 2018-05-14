@@ -4,9 +4,13 @@ package noncom.visvikis.giannis.retrofittest;
 
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdView;
+import com.google.android.gms.common.GoogleApiAvailability;
+import com.google.android.gms.security.ProviderInstaller;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 
+import android.os.Build;
 import android.os.Bundle;
 import android.os.PersistableBundle;
 import android.support.annotation.NonNull;
@@ -27,14 +31,20 @@ import android.view.MenuItem;
 import android.view.View;
 
 
-public class MainActivity extends AppCompatActivity implements InterFragmentCommunication
+
+public class MainActivity extends AppCompatActivity implements InterFragmentCommunication, ProviderInstaller.ProviderInstallListener
 {
+
     private final String RETAINED_FRAGMENT_TAG = "RETAINED_FRAGMENT_TAG";
     private final String MENU_FRAGMENT_TAG = "MENU_FRAGMENT_TAG";
     private final String MAIN_FRAGMENT_TAG = "MAIN_FRAGMENT_TAG";
     private final String DRAWER_OPEN_TAG = "DRAWER_OPEN_TAG";
     private final String DRAWER_PRESENT_TAG = "DRAWER_PRESENT_TAG";
     private final String API_TOKEN_TAG = "API_TOKEN_TAG";
+
+    private static final int ERROR_DIALOG_REQUEST_CODE = 0;
+
+    private boolean mRetryProviderInstall;
 
     private final int TOKEN_LOADER_CODE = 1;
     private final int CONNECTION_LOADER_CODE = 2;
@@ -44,7 +54,6 @@ public class MainActivity extends AppCompatActivity implements InterFragmentComm
     private boolean userSeenDrawer = false;
     private boolean isDrawerPresent = false;
 
-
     private DrawerLayout mDrawerLayout;
     private NavigationView mNavigationView;
     private ActionBarDrawerToggle mActionBarDrawerToggle;
@@ -53,15 +62,20 @@ public class MainActivity extends AppCompatActivity implements InterFragmentComm
     private MenuFragment menuFragment;
     private MainFragment mainFragment;
 
+    //Pre lollipop throw Exception SSL handshake. Try to update. If successful, then this gets set to true
+    private boolean updatedSecurity = false;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
 
+
         View root = getLayoutInflater().inflate(R.layout.activity_main, null);
         setContentView(root);
 
+        //check for internet connection
         checkInternetConnection();
 
         isDrawerPresent = root.getTag() != null;
@@ -104,6 +118,8 @@ public class MainActivity extends AppCompatActivity implements InterFragmentComm
             userSeenDrawer = savedInstanceState.getBoolean(DRAWER_OPEN_TAG);
             isDrawerPresent = savedInstanceState.getBoolean(DRAWER_PRESENT_TAG);
             apiToken = savedInstanceState.getString(API_TOKEN_TAG);
+
+            updatedSecurity = savedInstanceState.getBoolean("SECURITY_DOWNLOADED");
         }
 
 
@@ -178,6 +194,9 @@ public class MainActivity extends AppCompatActivity implements InterFragmentComm
         outState.putBoolean(DRAWER_OPEN_TAG, userSeenDrawer);
         outState.putBoolean(DRAWER_PRESENT_TAG, isDrawerPresent);
         outState.putString(API_TOKEN_TAG, apiToken);
+
+        if(Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP)
+            outState.putBoolean("SECURITY_DOWNLOADED", updatedSecurity);
     }
 
 
@@ -209,6 +228,7 @@ public class MainActivity extends AppCompatActivity implements InterFragmentComm
 
         return super.onOptionsItemSelected(item);
     }
+
 
 
     @Override
@@ -248,7 +268,11 @@ public class MainActivity extends AppCompatActivity implements InterFragmentComm
     }
 
 
-
+    /**
+     * Check for internet connection. If not present, start another activity asking to activate it.
+     * If present, check for SDK info. If pre lollipop apply patch from google play services for secure connection
+     * Finally reques token from api to start downloading the quiz questions
+     */
     private void checkInternetConnection()
     {
 
@@ -264,9 +288,17 @@ public class MainActivity extends AppCompatActivity implements InterFragmentComm
             @Override
             public void onLoadFinished(@NonNull android.support.v4.content.Loader<Boolean> loader, Boolean data)
             {
-                if(data && apiToken.equalsIgnoreCase("")) //if not empty, I already got one
+
+                if(data && (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP || updatedSecurity) )
                 {
-                    requestToken();
+                    if(apiToken.equalsIgnoreCase(""))
+                        requestToken();
+                }
+                //APPLY SECURITY PATCH FOR PRE LOLLIPOP DEVICES
+                else if(data && Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP && !updatedSecurity) //i
+                {
+                    Log.e("PATCH_REQUEST", "requesting patch");
+                    ProviderInstaller.installIfNeededAsync(getApplicationContext(), MainActivity.this);
                 }
                 else if(!data) // no active connection
                 {
@@ -285,8 +317,9 @@ public class MainActivity extends AppCompatActivity implements InterFragmentComm
     }
 
 
-
-
+    /**
+     * Asynchronous call to the api for token to prevent same questions asked again and again
+     */
     private void requestToken()
     {
         //request TOKEN. Checked already whether I got one yet or not
@@ -328,4 +361,96 @@ public class MainActivity extends AppCompatActivity implements InterFragmentComm
     }
 
 
+
+    /**
+     * Security patch applied successfully for pre lollipop device. Ask for api token
+     */
+    @Override
+    public void onProviderInstalled()
+    {
+        updatedSecurity = true;
+
+        //now start interaction with API
+        if(apiToken.equalsIgnoreCase(""))
+            requestToken();
+
+    }
+
+
+
+    @Override
+    public void onProviderInstallFailed(int i, Intent intent)
+    {
+
+        GoogleApiAvailability availability = GoogleApiAvailability.getInstance();
+        if (availability.isUserResolvableError(i)) {
+            // Recoverable error. Show a dialog prompting the user to
+            // install/update/enable Google Play services.
+            availability.showErrorDialogFragment(
+                    this, i,
+                    ERROR_DIALOG_REQUEST_CODE,
+                    new DialogInterface.OnCancelListener() {
+                        @Override
+                        public void onCancel(DialogInterface dialog) {
+                            // The user chose not to take the recovery action
+                            onProviderInstallerNotAvailable();
+                        }
+                    });
+        } else {
+            // Google Play services is not available.
+            onProviderInstallerNotAvailable();
+        }
+
+    }
+
+
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode,
+                                    Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == ERROR_DIALOG_REQUEST_CODE) {
+            // Adding a fragment via GoogleApiAvailability.showErrorDialogFragment
+            // before the instance state is restored throws an error. So instead,
+            // set a flag here, which will cause the fragment to delay until
+            // onPostResume.
+            mRetryProviderInstall = true;
+        }
+    }
+
+
+
+    /**
+     * On resume, check to see if we flagged that we need to reinstall the
+     * provider.
+     */
+    @Override
+    protected void onPostResume() {
+        super.onPostResume();
+        if (mRetryProviderInstall) {
+            // We can now safely retry installation.
+            ProviderInstaller.installIfNeededAsync(this, this);
+        }
+
+        mRetryProviderInstall = false;
+    }
+
+
+    /**
+     * attempts to apply security patch failed
+     */
+    private void onProviderInstallerNotAvailable() {
+        // This is reached if the provider cannot be updated for some reason.
+        // App should consider all HTTP communication to be vulnerable, and take
+        // appropriate action.
+
+        Intent patchFailedIntent = new Intent(this, PatchFailedActivity.class);
+        startActivity(patchFailedIntent);
+        this.finish();
+
+    }
+
 }
+
+
+

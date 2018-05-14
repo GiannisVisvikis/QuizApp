@@ -20,6 +20,7 @@
     <string name="drawer">drawer</string>
     <string name="api_not_responding">REMOTE SERVER NOT RESPONDING\nPLEASE TRY AGAIN LATER</string>
     <string name="no_connection">NO INTERNET CONNECTION\nACTIVATE AND TAP TO RETRY</string>
+    <string name="unfortunately">UNFORTUNATELY, SECURITY PATCH\nCOULD NOT BE INSTALLED TO YOUR DEVICE\nAND API CALLS MAY NOT HAD BEEN SAFE</string>
 
 
     <string-array name="num_questions_options">
