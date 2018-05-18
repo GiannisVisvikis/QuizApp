@@ -29,6 +29,7 @@
 
         <activity android:name=".NoConnectionActivity"/>
         <activity android:name=".NoResponseActivity"/>
+        <activity android:name=".PatchFailedActivity"/>
     </application>
 
 </manifest>

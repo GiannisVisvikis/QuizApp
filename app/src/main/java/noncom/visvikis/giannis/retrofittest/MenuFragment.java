@@ -18,7 +18,11 @@ import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdView;
 import com.google.android.gms.ads.MobileAds;
 
-
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+import retrofit2.Retrofit;
+import retrofit2.converter.gson.GsonConverterFactory;
 
 
 public class MenuFragment extends Fragment
@@ -113,12 +117,34 @@ public class MenuFragment extends Fragment
             @Override
             public void onClick(View v)
             {
-                //TODO Handle click, start a request via retrofit, get the questions, produce the adapter and set it to the main fragment's recycler view through intecommunication interface
 
                 String query = formQuery();
                 Log.e("MnuFgrmnt/StrtBttn", "Query is " + query);
 
-                //TODO read api documentation again about response codes. Might need to reset the token again or something else
+                Retrofit retrofit = new Retrofit.Builder()
+                                        .baseUrl(ApiInterface.BASE_URL)
+                                        .addConverterFactory(GsonConverterFactory.create())
+                                        .build();
+
+                ApiInterface apiInterface = retrofit.create(ApiInterface.class);
+
+                Call<ApiResponse> call = apiInterface.getResponse(query);
+                call.enqueue(new Callback<ApiResponse>()
+                {
+                    @Override
+                    public void onResponse(Call<ApiResponse> call, Response<ApiResponse> response)
+                    {
+
+                        ApiResponse apiResponse = response.body();
+                        act.setTheQuiz(apiResponse);
+                    }
+
+                    @Override
+                    public void onFailure(Call<ApiResponse> call, Throwable t)
+                    {
+                        Log.e("MenuFrgmnt/onClick", "Fuked up");
+                    }
+                });
 
                 if(getArguments() != null) //drawer layout present
                 {
@@ -179,7 +205,7 @@ public class MenuFragment extends Fragment
         String result = ApiInterface.BASE_URL;
 
         String amount = numQuestionsSpinner.getSelectedItem().toString();
-        result = result + "amount=" + amount;
+        result = result + "?amount=" + amount;
 
         String token = act.getApiToken();
 

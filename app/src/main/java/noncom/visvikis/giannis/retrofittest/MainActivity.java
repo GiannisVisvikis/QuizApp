@@ -5,6 +5,7 @@ package noncom.visvikis.giannis.retrofittest;
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdView;
 import com.google.android.gms.common.GoogleApiAvailability;
+import com.google.android.gms.common.api.Api;
 import com.google.android.gms.security.ProviderInstaller;
 
 import android.content.DialogInterface;
@@ -161,6 +162,10 @@ public class MainActivity extends AppCompatActivity implements InterFragmentComm
         }
 
 
+        //set up the Retrofit
+
+
+
         if(isDrawerPresent) //the adview belongs here in drawer layout. In menu fragment otherwise
         {
             //Remember to uncomment in the menu fragment as well
@@ -245,18 +250,6 @@ public class MainActivity extends AppCompatActivity implements InterFragmentComm
 
 
     @Override
-    public RecyclerView.Adapter getTheAdapter()
-    {
-        return retainedFragment.getTheAdapter();
-    }
-
-    @Override
-    public RetainedFragment getRetainedFragment(){
-        return retainedFragment;
-    }
-
-
-    @Override
     public void closeTheDrawer(){
         mDrawerLayout.closeDrawer(mNavigationView);
     }
@@ -266,6 +259,7 @@ public class MainActivity extends AppCompatActivity implements InterFragmentComm
     {
         return this.apiToken;
     }
+
 
 
     /**
@@ -315,6 +309,28 @@ public class MainActivity extends AppCompatActivity implements InterFragmentComm
             }
         });
     }
+
+
+
+
+    @Override
+    public void setTheQuiz(ApiResponse response)
+    {
+        Log.e("Response code is : ", response.getResponseCode());
+
+        Log.e("==========//===========", "==========//==========");
+
+        for(QuizQuestion question : response.getResults())
+        {
+            Log.e("Type : ",  question.getCategory());
+            Log.e("Question is : ",  question.getQuestion());
+            Log.e("Correct answer is : ", question.getCorrectAnswer());
+
+            Log.e("==========//===========", "==========//==========");
+        }
+    }
+
+
 
 
     /**
@@ -449,6 +465,12 @@ public class MainActivity extends AppCompatActivity implements InterFragmentComm
         this.finish();
 
     }
+
+
+
+
+
+
 
 }
 
