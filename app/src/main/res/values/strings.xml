@@ -20,20 +20,13 @@
     <string name="drawer">drawer</string>
     <string name="api_not_responding">REMOTE SERVER NOT RESPONDING\nPLEASE TRY AGAIN LATER</string>
     <string name="no_connection">NO INTERNET CONNECTION\nACTIVATE AND TAP TO RETRY</string>
-    <string name="unfortunately">UNFORTUNATELY, SECURITY PATCH\nCOULD NOT BE INSTALLED TO YOUR DEVICE\nAND API CALLS MAY NOT HAD BEEN SAFE</string>
+    <string name="unfortunately">UNFORTUNATELY, SECURITY PATCH\nCOULD NOT BE INSTALLED TO YOUR DEVICE\nSERVER CALLS MAY NOT HAD BEEN SAFE</string>
 
 
     <string-array name="num_questions_options">
         <item>10</item>
         <item>15</item>
         <item>20</item>
-        <item>25</item>
-    </string-array>
-
-
-    <string-array name="type_options">
-        <item>Multiple Choice</item>
-        <item>True/False</item>
     </string-array>
 
 
@@ -45,30 +38,16 @@
 
 
     <string-array name="categories">
-        <item>Animals</item>
         <item>Anime/Manga</item>
         <item>Any</item>
-        <item>Arts</item>
-        <item>Board Games</item>
-        <item>Books</item>
-        <item>Cartoons</item>
-        <item>Celebrities</item>
-        <item>Comics</item>
         <item>Computers</item>
         <item>Films</item>
-        <item>Gadgets</item>
         <item>General</item>
         <item>Geography</item>
         <item>History</item>
-        <item>Mathematics</item>
         <item>Music</item>
-        <item>Musicals / Theater</item>
-        <item>Mythology</item>
-        <item>Politics</item>
-        <item>Science / Nature</item>
-        <item>Sports</item>
-        <item>Television</item>
-        <item>Vehicles</item>
+        <item>Musicals/Theater</item>
+        <item>Science/Nature</item>
         <item>Video Games</item>
     </string-array>
 

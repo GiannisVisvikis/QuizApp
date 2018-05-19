@@ -72,20 +72,6 @@
                 android:layout_height="match_parent"
                 android:layout_weight="1"/>
 
-            <android.support.v7.widget.AppCompatTextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textAlignment="center"
-                android:textColor="@color/black"
-                android:layout_gravity="center"
-                android:text="@string/type"
-                android:textSize="@dimen/nav_settings_letters"/>
-
-            <FrameLayout
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_weight="1"/>
-
         </LinearLayout>
 
         <!-- add the spinners -->
@@ -132,18 +118,6 @@
                 android:layout_height="wrap_content"
                 android:background="@drawable/spinner_back"
                 android:id="@+id/difficulty_spinner"/>
-
-            <FrameLayout
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_weight="1"/>
-
-            <android.support.v7.widget.AppCompatSpinner
-                android:layout_marginRight="10dp"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:background="@drawable/spinner_back"
-                android:id="@+id/type_spinner"/>
 
             <FrameLayout
                 android:layout_width="match_parent"

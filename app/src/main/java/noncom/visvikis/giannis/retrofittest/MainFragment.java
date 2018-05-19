@@ -22,8 +22,10 @@ public class MainFragment extends Fragment
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState)
     {
 
-        //TODO decide which layout to use depending on true/false or multiple choice provided in the arguments
         View root = inflater.inflate(R.layout.main_fragment_multiple, container, false);
+
+
+        //TODO define a function that will return the assets pic by auestion category
 
         return root;
     }
