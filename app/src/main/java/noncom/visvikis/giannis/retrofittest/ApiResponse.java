@@ -19,7 +19,7 @@ public class ApiResponse
         return responseCode;
     }
 
-    public List<QuizQuestion> getResults()
+    public List<QuizQuestion> getQuestions()
     {
         return results;
     }

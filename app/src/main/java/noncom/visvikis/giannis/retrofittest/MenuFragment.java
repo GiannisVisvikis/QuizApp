@@ -117,53 +117,7 @@ public class MenuFragment extends Fragment
                 String query = formQuery();
                 Log.e("MnuFgrmnt/StrtBttn", "Query is " + query);
 
-                //handle possible api error that will be passed to retrofit instance
-                OkHttpClient httpClient = new OkHttpClient.Builder().addInterceptor(new Interceptor()
-                {
-                    @Override
-                    public okhttp3.Response intercept(Chain chain) throws IOException
-                    {
-                        Request request = chain.request();
-                        okhttp3.Response response = chain.proceed(request);
-
-                        if(response.code() == 500){
-
-                            startActivity(new Intent(getActivity(), NoResponseActivity.class));
-
-                        }
-
-                        return response;
-                    }
-                }).build();
-
-
-
-                Retrofit retrofit = new Retrofit.Builder()
-                                        .baseUrl(ApiInterface.BASE_URL)
-                                        .addConverterFactory(GsonConverterFactory.create())
-                                        .client(httpClient)
-                                        .build();
-
-                ApiInterface apiInterface = retrofit.create(ApiInterface.class);
-
-                Call<ApiResponse> call = apiInterface.getResponse(query);
-                call.enqueue(new Callback<ApiResponse>()
-                {
-                    @Override
-                    public void onResponse(Call<ApiResponse> call, Response<ApiResponse> response)
-                    {
-
-                        ApiResponse apiResponse = response.body();
-                        act.setTheQuiz(apiResponse);
-                    }
-
-                    @Override
-                    public void onFailure(Call<ApiResponse> call, Throwable t)
-                    {
-                        startActivity(new Intent(getActivity(), NoResponseActivity.class));
-                        getActivity().finish();
-                    }
-                });
+                makeRetrofitCall(query);
 
                 if(getArguments() != null) //drawer layout present
                 {
@@ -304,6 +258,59 @@ public class MenuFragment extends Fragment
         }
 
         return result;
+    }
+
+
+
+    public void makeRetrofitCall(final String query)
+    {
+        //Create a listener to handle possible api error that will be passed to retrofit instance
+        OkHttpClient httpClient = new OkHttpClient.Builder().addInterceptor(new Interceptor()
+        {
+            @Override
+            public okhttp3.Response intercept(Chain chain) throws IOException
+            {
+                Request request = chain.request();
+                okhttp3.Response response = chain.proceed(request);
+
+                if(response.code() == 500){
+
+                    startActivity(new Intent(getActivity(), NoResponseActivity.class));
+
+                }
+
+                return response;
+            }
+        }).build();
+
+
+
+        Retrofit retrofit = new Retrofit.Builder()
+                .baseUrl(ApiInterface.BASE_URL)
+                .addConverterFactory(GsonConverterFactory.create())
+                .client(httpClient)
+                .build();
+
+        ApiInterface apiInterface = retrofit.create(ApiInterface.class);
+
+        Call<ApiResponse> call = apiInterface.getResponse(query);
+        call.enqueue(new Callback<ApiResponse>()
+        {
+            @Override
+            public void onResponse(Call<ApiResponse> call, Response<ApiResponse> response)
+            {
+
+                ApiResponse apiResponse = response.body();
+                act.setTheQuiz(apiResponse, query);
+            }
+
+            @Override
+            public void onFailure(Call<ApiResponse> call, Throwable t)
+            {
+                startActivity(new Intent(getActivity(), NoResponseActivity.class));
+                getActivity().finish();
+            }
+        });
     }
 
 

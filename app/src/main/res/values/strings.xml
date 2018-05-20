@@ -21,12 +21,13 @@
     <string name="api_not_responding">REMOTE SERVER NOT RESPONDING\nPLEASE TRY AGAIN LATER</string>
     <string name="no_connection">NO INTERNET CONNECTION\nACTIVATE AND TAP TO RETRY</string>
     <string name="unfortunately">UNFORTUNATELY, SECURITY PATCH\nCOULD NOT BE INSTALLED TO YOUR DEVICE\nSERVER CALLS MAY NOT HAD BEEN SAFE</string>
+    <string name="reset_dialog_message">NO MORE QUESTIONS FOR THESE SETTINGS.\nREPEAT QUIZ OR TRY DIFFERENT OPTIONS</string>
+    <string name="repeat">Repeat</string>
 
 
     <string-array name="num_questions_options">
         <item>10</item>
         <item>15</item>
-        <item>20</item>
     </string-array>
 
 

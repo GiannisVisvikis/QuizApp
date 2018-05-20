@@ -5,7 +5,6 @@ package noncom.visvikis.giannis.retrofittest;
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdView;
 import com.google.android.gms.common.GoogleApiAvailability;
-import com.google.android.gms.common.api.Api;
 import com.google.android.gms.security.ProviderInstaller;
 
 import android.content.DialogInterface;
@@ -19,12 +18,13 @@ import android.support.annotation.Nullable;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v4.app.LoaderManager;
+import android.support.v4.content.Loader;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
@@ -48,6 +48,7 @@ public class MainActivity extends AppCompatActivity implements InterFragmentComm
     private boolean mRetryProviderInstall;
 
     private final int TOKEN_LOADER_CODE = 1;
+    private final int RESET_TOKEN_LOADER_CODE = 3;
     private final int CONNECTION_LOADER_CODE = 2;
 
     private String apiToken = ""; //start empty, will change inside onCreate;
@@ -100,10 +101,10 @@ public class MainActivity extends AppCompatActivity implements InterFragmentComm
                 menuFragment.setArguments(menuArgs);
             }
 
-            //mainFragment = new MainFragment();
+            mainFragment = new MainFragment();
 
             fragmentTransaction.add(R.id.menu_frag_place, menuFragment, MENU_FRAGMENT_TAG);
-            //fragmentTransaction.add(R.id.main_frag_place, mainFragment, MAIN_FRAGMENT_TAG);
+            fragmentTransaction.add(R.id.main_frag_place, mainFragment, MAIN_FRAGMENT_TAG);
 
             retainedFragment = new RetainedFragment();
             fragmentTransaction.add(retainedFragment, RETAINED_FRAGMENT_TAG);
@@ -249,15 +250,72 @@ public class MainActivity extends AppCompatActivity implements InterFragmentComm
     }
 
 
+
     @Override
-    public void closeTheDrawer(){
-        mDrawerLayout.closeDrawer(mNavigationView);
+    public void closeTheDrawer()
+    {
+        if(isDrawerPresent && mDrawerLayout.isDrawerOpen(mNavigationView))
+            mDrawerLayout.closeDrawer(mNavigationView);
     }
+
+
+
+    @Override
+    public void openTheDrawer()
+    {
+        if(isDrawerPresent && !mDrawerLayout.isDrawerOpen(mNavigationView))
+            mDrawerLayout.openDrawer(mNavigationView);
+    }
+
+
 
     @Override
     public String getApiToken()
     {
         return this.apiToken;
+    }
+
+
+    @Override
+    public MenuFragment getMenuFragment()
+    {
+        return this.menuFragment;
+    }
+
+
+    @Override
+    public MainFragment getMainFragment()
+    {
+        return this.mainFragment;
+    }
+
+
+
+    @Override
+    public void resetTheToken(final String query)
+    {
+        getSupportLoaderManager().restartLoader(RESET_TOKEN_LOADER_CODE, null, new LoaderManager.LoaderCallbacks<Void>()
+        {
+            @NonNull
+            @Override
+            public Loader<Void> onCreateLoader(int id, @Nullable Bundle args)
+            {
+                return new ApiTokenResetLoader(getApplicationContext(), apiToken);
+            }
+
+            @Override
+            public void onLoadFinished(@NonNull Loader<Void> loader, Void data)
+            {
+                //token reset. request questions from api
+                menuFragment.makeRetrofitCall(query);
+            }
+
+            @Override
+            public void onLoaderReset(@NonNull Loader<Void> loader)
+            {
+
+            }
+        });
     }
 
 
@@ -289,7 +347,7 @@ public class MainActivity extends AppCompatActivity implements InterFragmentComm
                         requestToken();
                 }
                 //APPLY SECURITY PATCH FOR PRE LOLLIPOP DEVICES
-                else if(data && Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP && !updatedSecurity) //i
+                else if(data && Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP && !updatedSecurity)
                 {
                     Log.e("PATCH_REQUEST", "requesting patch");
                     ProviderInstaller.installIfNeededAsync(getApplicationContext(), MainActivity.this);
@@ -314,13 +372,14 @@ public class MainActivity extends AppCompatActivity implements InterFragmentComm
 
 
     @Override
-    public void setTheQuiz(ApiResponse response)
+    public void setTheQuiz(ApiResponse response, String query)
     {
+        /*
         Log.e("Response code is : ", response.getResponseCode());
 
         Log.e("==========//===========", "==========//==========");
 
-        for(QuizQuestion question : response.getResults())
+        for(QuizQuestion question : response.getQuestions())
         {
             Log.e("Type : ",  question.getCategory());
             Log.e("Question is : ",  question.getQuestion());
@@ -328,6 +387,29 @@ public class MainActivity extends AppCompatActivity implements InterFragmentComm
 
             Log.e("==========//===========", "==========//==========");
         }
+
+        */
+
+        String responseCode = response.getResponseCode();
+
+        if (responseCode.equalsIgnoreCase("4") || response.getResponseCode().equalsIgnoreCase("1"))
+        {
+            //show a dialog and inform the user that the questions will recycle themselves
+            ResetDialog resetDialog = new ResetDialog();
+            Bundle args = new Bundle();
+            args.putString("QUERY", query);
+            resetDialog.setArguments(args);
+
+            resetDialog.show(getSupportFragmentManager(), "RESET_DIALOG");
+
+        }
+        else if (responseCode.equalsIgnoreCase("0"))
+        {
+            //TODO success, setup the quiz
+
+        }
+
+
     }
 
 

@@ -5,7 +5,13 @@ public interface InterFragmentCommunication
 
 
     void closeTheDrawer();
+    void openTheDrawer();
+
     String getApiToken();
 
-    void setTheQuiz(ApiResponse response);
+    MenuFragment getMenuFragment();
+    MainFragment getMainFragment();
+
+    void resetTheToken(String query);
+    void setTheQuiz(ApiResponse response, String query);
 }
