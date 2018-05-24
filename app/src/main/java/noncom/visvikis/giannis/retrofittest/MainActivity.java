@@ -15,7 +15,9 @@ import android.os.Bundle;
 import android.os.PersistableBundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.design.widget.BaseTransientBottomBar;
 import android.support.design.widget.NavigationView;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.app.LoaderManager;
@@ -290,6 +292,12 @@ public class MainActivity extends AppCompatActivity implements InterFragmentComm
     }
 
 
+    @Override
+    public RetainedFragment getRetainedFragment(){
+        return this.retainedFragment;
+    }
+
+
 
     @Override
     public void resetTheToken(final String query)
@@ -374,21 +382,6 @@ public class MainActivity extends AppCompatActivity implements InterFragmentComm
     @Override
     public void setTheQuiz(ApiResponse response, String query)
     {
-        /*
-        Log.e("Response code is : ", response.getResponseCode());
-
-        Log.e("==========//===========", "==========//==========");
-
-        for(QuizQuestion question : response.getQuestions())
-        {
-            Log.e("Type : ",  question.getCategory());
-            Log.e("Question is : ",  question.getQuestion());
-            Log.e("Correct answer is : ", question.getCorrectAnswer());
-
-            Log.e("==========//===========", "==========//==========");
-        }
-
-        */
 
         String responseCode = response.getResponseCode();
 
@@ -405,13 +398,38 @@ public class MainActivity extends AppCompatActivity implements InterFragmentComm
         }
         else if (responseCode.equalsIgnoreCase("0"))
         {
-            //TODO success, setup the quiz
-
+            retainedFragment.setQuizQuestions(response.getQuestions());
+            mainFragment.setupQuestion(0);
         }
 
 
     }
 
+
+
+    @Override
+    public void launchNewQuiz()
+    {
+        menuFragment.launchNewQuiz();
+    }
+
+
+
+    @Override
+    public void showSnackBar(int totalCorrect)
+    {
+        View coordinator;
+
+        if(isDrawerPresent)
+            coordinator = findViewById(R.id.coordinator);
+        else
+            coordinator = mainFragment.getCoordinatorView();
+
+        Snackbar snackbar = Snackbar.make(coordinator,totalCorrect + " " + getResources().getString(R.string.coordinator_message), BaseTransientBottomBar.LENGTH_SHORT);
+        snackbar.show();
+        ///ADD A SHARE OPTION WHEN UPLOADED ON GOOGLE PLAY
+
+    }
 
 
 
@@ -438,7 +456,7 @@ public class MainActivity extends AppCompatActivity implements InterFragmentComm
                 {
                     apiToken = (String) data[1];
 
-                    Log.e("TOKEN", apiToken);
+                    //Log.e("TOKEN", apiToken);
                 }
                 else
                 {

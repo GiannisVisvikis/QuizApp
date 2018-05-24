@@ -114,15 +114,7 @@ public class MenuFragment extends Fragment
             public void onClick(View v)
             {
 
-                String query = formQuery();
-                Log.e("MnuFgrmnt/StrtBttn", "Query is " + query);
-
-                makeRetrofitCall(query);
-
-                if(getArguments() != null) //drawer layout present
-                {
-                    act.closeTheDrawer();
-                }
+                launchNewQuiz();
             }
         });
 
@@ -148,6 +140,8 @@ public class MenuFragment extends Fragment
         }
 
     }
+
+
 
 
     @Override
@@ -262,6 +256,22 @@ public class MenuFragment extends Fragment
 
 
 
+
+    public void launchNewQuiz()
+    {
+        String query = formQuery();
+        Log.e("MnuFgrmnt/StrtBttn", "Query is " + query);
+
+        makeRetrofitCall(query);
+
+        if(getArguments() != null) //drawer layout present
+        {
+            act.closeTheDrawer();
+        }
+    }
+
+
+
     public void makeRetrofitCall(final String query)
     {
         //Create a listener to handle possible api error that will be passed to retrofit instance
@@ -307,7 +317,7 @@ public class MenuFragment extends Fragment
             @Override
             public void onFailure(Call<ApiResponse> call, Throwable t)
             {
-                startActivity(new Intent(getActivity(), NoResponseActivity.class));
+                startActivity(new Intent(getContext(), NoResponseActivity.class));
                 getActivity().finish();
             }
         });

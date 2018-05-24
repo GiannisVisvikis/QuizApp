@@ -48,7 +48,6 @@ public class ResetDialog extends DialogFragment
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState)
     {
-
         View root = inflater.inflate(R.layout.reset_dialog, container, false);
 
         AppCompatButton repeatButton = root.findViewById(R.id.repeat_button);
