@@ -17,6 +17,9 @@ public interface InterFragmentCommunication
     void setTheQuiz(ApiResponse response, String query);
     void launchNewQuiz();
 
+    void incrementCorrectAnswers();
+    void setupQuestion();
+
     void showSnackBar(int totalCorrect);
 
 }

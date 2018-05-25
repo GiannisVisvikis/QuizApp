@@ -3,15 +3,14 @@ package noncom.visvikis.giannis.retrofittest;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
 import android.support.v7.widget.AppCompatTextView;
-import android.support.v7.widget.CardView;
+
 import android.text.Html;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -19,7 +18,6 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 
 import java.io.IOException;
-import java.util.Random;
 
 
 public class MainFragment extends Fragment
@@ -29,24 +27,20 @@ public class MainFragment extends Fragment
     private final String CURRENT_INDEX_TAG = "CURRENT_INDEX_TAG";
     private final String PLAYING_QUIZ_TAG = "PLAYING_QUIZ_TAG";
     private final String TOTAL_CORRECT_COUNTER = "TOTAL-CORRECT_COUNTER";
+
     private int currentIndex;
     private int totalCorrect;
-
-    private View root;
 
     //keep track if orientation change happened in the middle of a game
     private boolean playingQuiz;
 
     private InterFragmentCommunication act;
 
+    private View root;
+
     private ImageView questionImage;
     private AppCompatTextView questionTxt;
-    private AppCompatTextView answer1, answer2, answer3, answer4;
 
-    private CardView answerCard1, answerCard2, answerCard3, answerCard4;
-
-    private AppCompatTextView[] answerTxtViews;
-    private CardView[] answerCards;
 
 
     @Override
@@ -76,31 +70,15 @@ public class MainFragment extends Fragment
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState)
     {
 
-        root = inflater.inflate(R.layout.main_fragment_multiple, container, false);
+        root = inflater.inflate(R.layout.main_fragment, container, false);
 
         questionImage = root.findViewById(R.id.question_photo_place);
 
         questionTxt = root.findViewById(R.id.question_place);
 
-        answer1 = root.findViewById(R.id.answer1_txt);
-        answer2 = root.findViewById(R.id.answer2_txt);
-        answer3 = root.findViewById(R.id.answer3_txt);
-        answer4 = root.findViewById(R.id.answer4_txt);
-
-        answerTxtViews = new AppCompatTextView[]{answer1, answer2, answer3, answer4};
-
-        answerCard1 = root.findViewById(R.id.answer1_card);
-        answerCard2 = root.findViewById(R.id.answer2_card);
-        answerCard3 = root.findViewById(R.id.answer3_card);
-        answerCard4 = root.findViewById(R.id.answer4_card);
-
-        answerCards = new CardView[]{answerCard1, answerCard2, answerCard3, answerCard4};
-
-
-        //TODO define a function that will return the assets pic by auestion category
-
         return root;
     }
+
 
 
 
@@ -116,6 +94,7 @@ public class MainFragment extends Fragment
             setupQuestion(currentIndex);
 
     }
+
 
 
 
@@ -140,6 +119,7 @@ public class MainFragment extends Fragment
     }
 
 
+
     /**
      * sets up the question at questionIndex
      * @param questionIndex the index of the quiz question
@@ -159,90 +139,24 @@ public class MainFragment extends Fragment
 
             QuizQuestion question = act.getRetainedFragment().getQuizQuestions().get(questionIndex);
 
-            Random random = new Random();
-
-            //select an index at random to put the correct answer in place
-            int correctIndex = random.nextInt(answerTxtViews.length);
-            //will point to the incorrect answer inside question.getFalseAnswers
-            int falseIndex = 0;
-            //will point to index at cardViews array. Whenever this gets to correct index, a listener will be added for correct choice
-            int generalIndex = 0;
+            String type = question.getType();
 
 
-            for(AppCompatTextView answerTxtView : answerTxtViews)
-            {
+            //Answers could be either multiple or boolean. Add the appropriate answers fragment
+            Bundle answerArgs = new Bundle();
 
-                //make color black again from previous answer
-                answerTxtView.setTextColor(Color.BLACK);
+            boolean isBinary = type.equalsIgnoreCase("boolean");
 
-                if(answerTxtView == answerTxtViews[correctIndex])
-                {   //if this is the position selected at random for the correct answer set the correct answer
-                    final AppCompatTextView correctTextView = answerTxtViews[generalIndex];
+            answerArgs.putInt(AnswersFragment.QUESTION_INDEX, questionIndex);
+            answerArgs.putBoolean(AnswersFragment.ANSWERS_TYPE, isBinary);
 
-                    String rightAnswer = question.getCorrectAnswer();
-                    makeReadable(rightAnswer, correctTextView);
+            AnswersFragment answersFragment = new AnswersFragment();
+            answersFragment.setArguments(answerArgs);
+            FragmentManager fragmentManager = getChildFragmentManager();
+            fragmentManager.beginTransaction().replace(R.id.answers_place, answersFragment, "ANSWERS_FRAGMENT").commit();
 
-                    //set the listener for correct choice to the cardview that holds the text view displaying the correct answer
-                    CardView correctCard = answerCards[generalIndex];
-                    correctCard.setEnabled(true); //might be disabled from previous game
-                    correctCard.setOnClickListener(new View.OnClickListener()
-                    {
-                        @Override
-                        public void onClick(View v)
-                        {
-                            act.getRetainedFragment().playSound(R.raw.success);
+            fragmentManager.executePendingTransactions();
 
-                            correctTextView.setTextColor(Color.GREEN);
-
-                            try
-                            {
-                                Thread.sleep(1000);
-                            }
-                            catch (InterruptedException ie){}
-
-                            totalCorrect++;
-                            currentIndex++;
-                            setupQuestion(currentIndex);
-                        }
-                    });
-
-
-                }
-                else
-                {   //set a false answer
-
-                    String falseAnswer = question.getFalseAnswers().get(falseIndex);
-                    makeReadable(falseAnswer, answerTxtView);
-
-                    final AppCompatTextView falseTextView = answerTxtViews[generalIndex];
-
-                    //set the listener for false answer
-                    CardView falseCard = answerCards[generalIndex];
-                    falseCard.setEnabled(true);
-                    falseCard.setOnClickListener(new View.OnClickListener()
-                    {
-                        @Override
-                        public void onClick(View v)
-                        {
-                            act.getRetainedFragment().playSound(R.raw.wrong_answer);
-                            falseTextView.setTextColor(Color.RED);
-
-                            try
-                            {
-                                Thread.sleep(1000);
-                            }
-                            catch (InterruptedException ie){}
-
-                            currentIndex++;
-                            setupQuestion(currentIndex);
-                        }
-                    });
-
-                    falseIndex++;
-                }
-
-                generalIndex++;
-            }
 
             String questionFullText = question.getQuestion();
 
@@ -256,25 +170,33 @@ public class MainFragment extends Fragment
         {
             playingQuiz = false;
 
-            //Disable cards
-
-            for(int index=0; index<answerCards.length; index++)
-            {
-                answerCards[index].setEnabled(false);
-            }
-
             act.showSnackBar(totalCorrect);
 
-            see to null pointer at MenuFragment line 320 getContext when wifi lenovo shut off from inactivity
-            //TODO fix colors
+            fix colors on question cards
         }
 
     }
 
 
 
+    public void incrementTotalCorrect(){
+        totalCorrect ++;
+    }
+
+
+    public void incrementCurrentIndex(){
+        currentIndex++;
+    }
+
+
     public View getCoordinatorView(){
         return root.findViewById(R.id.coordinator);
+    }
+
+
+    public int getCurrentIndex()
+    {
+        return currentIndex;
     }
 
 
@@ -321,7 +243,7 @@ public class MainFragment extends Fragment
      * @param toConvert
      * @return
      */
-    private void makeReadable(String toConvert, AppCompatTextView toAddTo){
+    public void makeReadable(String toConvert, AppCompatTextView toAddTo){
 
         if (Build.VERSION.SDK_INT >= 24)
         {

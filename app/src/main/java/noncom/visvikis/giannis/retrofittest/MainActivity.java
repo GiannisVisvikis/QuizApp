@@ -406,6 +406,20 @@ public class MainActivity extends AppCompatActivity implements InterFragmentComm
     }
 
 
+    @Override
+    public void incrementCorrectAnswers(){
+        mainFragment.incrementTotalCorrect();
+    }
+
+    @Override
+    public void setupQuestion()
+    {
+        getMainFragment().incrementCurrentIndex();
+        int currentQuestionIndex = getMainFragment().getCurrentIndex();
+        getMainFragment().setupQuestion(currentQuestionIndex);
+    }
+
+
 
     @Override
     public void launchNewQuiz()

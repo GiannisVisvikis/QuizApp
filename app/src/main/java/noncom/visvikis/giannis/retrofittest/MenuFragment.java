@@ -188,7 +188,7 @@ public class MenuFragment extends Fragment
         difficulty = Character.toLowerCase(difficulty.charAt(0)) + difficulty.substring(1);
         result = result + "&difficulty=" + difficulty;
 
-        result = result + "&type=multiple";
+        //result = result + "&type=multiple";
 
         return result;
     }
@@ -317,8 +317,10 @@ public class MenuFragment extends Fragment
             @Override
             public void onFailure(Call<ApiResponse> call, Throwable t)
             {
-                startActivity(new Intent(getContext(), NoResponseActivity.class));
-                getActivity().finish();
+                if(getContext() != null) {
+                    startActivity(new Intent(getContext(), NoResponseActivity.class));
+                    getActivity().finish();
+                }
             }
         });
     }
