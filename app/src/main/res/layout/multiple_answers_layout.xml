@@ -15,6 +15,7 @@
             android:layout_marginTop="5dp"
             android:layout_marginRight="5dp"
             android:layout_marginBottom="5dp"
+            android:layout_marginLeft="5dp"
             android:id="@+id/answer1_card"
             android:layout_weight="1">
 
@@ -23,7 +24,7 @@
                 android:layout_height="match_parent"
                 android:gravity="center">
 
-                <TextView
+                <android.support.v7.widget.AppCompatTextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:textColor="@color/black"
@@ -44,6 +45,7 @@
             android:elevation="20dp"
             android:layout_marginRight="5dp"
             android:layout_marginBottom="5dp"
+            android:layout_marginLeft="5dp"
             android:id="@+id/answer2_card"
             android:layout_weight="1">
 
@@ -52,7 +54,7 @@
                 android:layout_height="match_parent"
                 android:gravity="center">
 
-                <TextView
+                <android.support.v7.widget.AppCompatTextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:textColor="@color/black"
@@ -73,6 +75,7 @@
             android:elevation="20dp"
             android:layout_marginRight="5dp"
             android:layout_marginBottom="5dp"
+            android:layout_marginLeft="5dp"
             android:id="@+id/answer3_card"
             android:layout_weight="1">
 
@@ -81,7 +84,7 @@
                 android:layout_height="match_parent"
                 android:gravity="center">
 
-                <TextView
+                <android.support.v7.widget.AppCompatTextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:textColor="@color/black"
@@ -102,6 +105,7 @@
             app:cardBackgroundColor="@color/white"
             android:layout_marginRight="5dp"
             android:layout_marginBottom="5dp"
+            android:layout_marginLeft="5dp"
             android:id="@+id/answer4_card"
             android:layout_weight="1">
 
@@ -110,7 +114,7 @@
                 android:layout_height="match_parent"
                 android:gravity="center">
 
-                <TextView
+                <android.support.v7.widget.AppCompatTextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:textColor="@color/black"

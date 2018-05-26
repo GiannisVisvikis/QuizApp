@@ -35,6 +35,7 @@ import android.view.View;
 
 
 
+
 public class MainActivity extends AppCompatActivity implements InterFragmentCommunication, ProviderInstaller.ProviderInstallListener
 {
 
@@ -55,7 +56,6 @@ public class MainActivity extends AppCompatActivity implements InterFragmentComm
 
     private String apiToken = ""; //start empty, will change inside onCreate;
 
-    private boolean userSeenDrawer = false;
     private boolean isDrawerPresent = false;
 
     private DrawerLayout mDrawerLayout;
@@ -68,6 +68,7 @@ public class MainActivity extends AppCompatActivity implements InterFragmentComm
 
     //Pre lollipop throw Exception SSL handshake. Try to update. If successful, then this gets set to true
     private boolean updatedSecurity = false;
+
 
 
     @Override
@@ -119,7 +120,6 @@ public class MainActivity extends AppCompatActivity implements InterFragmentComm
             menuFragment = (MenuFragment) fragmentManager.findFragmentByTag(MENU_FRAGMENT_TAG);
             mainFragment = (MainFragment) fragmentManager.findFragmentByTag(MAIN_FRAGMENT_TAG);
 
-            userSeenDrawer = savedInstanceState.getBoolean(DRAWER_OPEN_TAG);
             isDrawerPresent = savedInstanceState.getBoolean(DRAWER_PRESENT_TAG);
             apiToken = savedInstanceState.getString(API_TOKEN_TAG);
 
@@ -149,8 +149,6 @@ public class MainActivity extends AppCompatActivity implements InterFragmentComm
 
                 public void onDrawerOpened(View drawerView)
                 {
-
-                    userSeenDrawer = true;
                     //Toast.makeText(getApplicationContext(), "Drawer is open", Toast.LENGTH_SHORT).show();
                     invalidateOptionsMenu();
                 }
@@ -159,18 +157,7 @@ public class MainActivity extends AppCompatActivity implements InterFragmentComm
             mDrawerLayout.addDrawerListener(mActionBarDrawerToggle);
 
 
-            if(!userSeenDrawer)
-                mDrawerLayout.openDrawer(mNavigationView);
 
-        }
-
-
-        //set up the Retrofit
-
-
-
-        if(isDrawerPresent) //the adview belongs here in drawer layout. In menu fragment otherwise
-        {
             //Remember to uncomment in the menu fragment as well
             //MobileAds.initialize(getActivity(), put the app id from admob here);
 
@@ -179,7 +166,10 @@ public class MainActivity extends AppCompatActivity implements InterFragmentComm
             AdRequest adRequest = new AdRequest.Builder()
                     .setRequestAgent("android_studio:ad_template").build();
             adView.loadAd(adRequest);
+
         }
+
+
 
     }
 
@@ -199,12 +189,24 @@ public class MainActivity extends AppCompatActivity implements InterFragmentComm
     {
         super.onSaveInstanceState(outState);
 
-        outState.putBoolean(DRAWER_OPEN_TAG, userSeenDrawer);
         outState.putBoolean(DRAWER_PRESENT_TAG, isDrawerPresent);
         outState.putString(API_TOKEN_TAG, apiToken);
 
         if(Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP)
             outState.putBoolean("SECURITY_DOWNLOADED", updatedSecurity);
+    }
+
+
+    @Override
+    protected void onStart()
+    {
+        super.onStart();
+
+
+        fix this shit what the fuck is wrong here
+        if(isDrawerPresent && !getMainFragment().isPlayingQuiz())
+            mDrawerLayout.openDrawer(mNavigationView);
+
     }
 
 
@@ -216,6 +218,7 @@ public class MainActivity extends AppCompatActivity implements InterFragmentComm
         getMenuInflater().inflate(R.menu.menu_main, menu);
         return true;
     }
+
 
 
     @Override
@@ -231,6 +234,14 @@ public class MainActivity extends AppCompatActivity implements InterFragmentComm
                 mDrawerLayout.openDrawer(GravityCompat.START);
                 return true;
 
+            case R.id.action_share:
+                String link = "https://play.google.com/store/apps/details?id=noncom.visvikis.giannis.retrofittest";
+
+                Intent shareIntent = new Intent(Intent.ACTION_SEND);
+                shareIntent.setType("text/plain");
+                shareIntent.putExtra(Intent.EXTRA_TEXT, link);
+                startActivity(Intent.createChooser(shareIntent, "Share Link"));
+                return true;
 
         }
 
@@ -579,9 +590,6 @@ public class MainActivity extends AppCompatActivity implements InterFragmentComm
         this.finish();
 
     }
-
-
-
 
 
 

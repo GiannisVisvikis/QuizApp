@@ -234,10 +234,6 @@ public class MenuFragment extends Fragment
                 result = "12";
                 break;
 
-            case "Musicals/Theater":
-                result = "13";
-                break;
-
             case "Science/Nature":
                 result = "17";
                 break;

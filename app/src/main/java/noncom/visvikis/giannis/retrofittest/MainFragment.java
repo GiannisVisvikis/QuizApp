@@ -172,11 +172,15 @@ public class MainFragment extends Fragment
 
             act.showSnackBar(totalCorrect);
 
-            fix colors on question cards
         }
 
     }
 
+
+    public boolean isPlayingQuiz()
+    {
+        return playingQuiz;
+    }
 
 
     public void incrementTotalCorrect(){

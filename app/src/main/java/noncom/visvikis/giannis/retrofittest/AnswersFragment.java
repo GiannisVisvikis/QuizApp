@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+
 import android.support.v7.widget.AppCompatTextView;
 import android.support.v7.widget.CardView;
 import android.view.LayoutInflater;
@@ -140,7 +141,7 @@ public class AnswersFragment extends Fragment
         {
             Random random = new Random();
 
-            QuizQuestion question = act.getRetainedFragment().getQuizQuestions().get(questionIndex);
+            final QuizQuestion question = act.getRetainedFragment().getQuizQuestions().get(questionIndex);
 
             //select an index at random to put the correct answer in place
             int correctIndex = random.nextInt(answerTxtViews.length);
@@ -162,29 +163,35 @@ public class AnswersFragment extends Fragment
                     act.getMainFragment().makeReadable(rightAnswer, correctTextView);
 
                     //set the listener for correct choice to the cardview that holds the text view displaying the correct answer
-                    CardView correctCard = answerCards[generalIndex];
-                    correctCard.setEnabled(true); //might be disabled from previous game
+                    final CardView correctCard = answerCards[generalIndex];
+                    correctCard.setEnabled(true); //might be disabled from previous game/question
                     correctCard.setOnClickListener(new View.OnClickListener()
                     {
                         @Override
                         public void onClick(View v)
                         {
-                            act.getRetainedFragment().playSound(R.raw.success);
-
                             correctTextView.setTextColor(Color.GREEN);
+                            act.getRetainedFragment().playSound(R.raw.success);
+                            disableCards(answerCards);
 
-                            try {
-                                Thread.sleep(1000);
-                            }
-                            catch (InterruptedException ie) {
-                            }
+                            act.incrementCorrectAnswers();
 
-                            if (questionIndex < act.getRetainedFragment().getQuizQuestions().size() - 1) //there are still questions left to answer
+
+                            correctTextView.postDelayed(new Runnable()
                             {
-                                act.incrementCorrectAnswers();
-                                act.setupQuestion();
-                            } else
-                                disableCards(answerCards);
+                                @Override
+                                public void run()
+                                {
+                                    if (questionIndex < act.getRetainedFragment().getQuizQuestions().size() - 1) //there are still questions left to answer
+                                    {
+                                        act.setupQuestion();
+                                    } else {
+                                        questionIndex++;
+                                        disableCards(answerCards);
+                                        act.setupQuestion();
+                                    }
+                                }
+                            }, 1000);
                         }
                     });
 
@@ -197,30 +204,36 @@ public class AnswersFragment extends Fragment
                     final AppCompatTextView falseTextView = answerTxtViews[generalIndex];
 
                     //set the listener for false answer
-                    CardView falseCard = answerCards[generalIndex];
-                    falseCard.setEnabled(true);
+                    final CardView falseCard = answerCards[generalIndex];
+
+                    falseCard.setEnabled(true); //might be disabled from previous game/question
                     falseCard.setOnClickListener(new View.OnClickListener()
                     {
                         @Override
                         public void onClick(View v)
                         {
-                            act.getRetainedFragment().playSound(R.raw.wrong_answer);
+
                             falseTextView.setTextColor(Color.RED);
+                            act.getRetainedFragment().playSound(R.raw.wrong_answer);
 
-                            try {
-                                Thread.sleep(1000);
-                            }
-                            catch (InterruptedException ie) {
-                            }
+                            //disable cards. If still enabled the user can take a second guess until the UI refreshes
+                            disableCards(answerCards);
 
-                            if (questionIndex < act.getRetainedFragment().getQuizQuestions().size() - 1) //there are still questions left to answer
+                            falseTextView.postDelayed(new Runnable()
                             {
-                                act.setupQuestion();
-                            } else {
-                                questionIndex++;
-                                disableCards(answerCards);
-
-                            }
+                                @Override
+                                public void run()
+                                {
+                                    if (questionIndex < act.getRetainedFragment().getQuizQuestions().size() - 1) //there are still questions left to answer
+                                    {
+                                        act.setupQuestion();
+                                    } else {
+                                        questionIndex++;
+                                        disableCards(answerCards);
+                                        act.setupQuestion();
+                                    }
+                                }
+                            }, 1500);
                         }
                     });
 
@@ -241,9 +254,6 @@ public class AnswersFragment extends Fragment
         {
             answerCards[index].setEnabled(false);
         }
-
-        //will just display correct answers
-        act.setupQuestion();
     }
 
 
