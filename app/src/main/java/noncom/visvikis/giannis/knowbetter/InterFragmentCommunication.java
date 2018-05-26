@@ -1,4 +1,4 @@
-package noncom.visvikis.giannis.retrofittest;
+package noncom.visvikis.giannis.knowbetter;
 
 public interface InterFragmentCommunication
 {
@@ -9,13 +9,11 @@ public interface InterFragmentCommunication
 
     String getApiToken();
 
-    MenuFragment getMenuFragment();
     MainFragment getMainFragment();
     RetainedFragment getRetainedFragment();
 
     void resetTheToken(String query);
     void setTheQuiz(ApiResponse response, String query);
-    void launchNewQuiz();
 
     void incrementCorrectAnswers();
     void setupQuestion();

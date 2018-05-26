@@ -1,4 +1,4 @@
-package noncom.visvikis.giannis.retrofittest;
+package noncom.visvikis.giannis.knowbetter;
 
 
 import android.graphics.Bitmap;
@@ -29,6 +29,7 @@ public class MainFragment extends Fragment
     private final String TOTAL_CORRECT_COUNTER = "TOTAL-CORRECT_COUNTER";
 
     private int currentIndex;
+
     private int totalCorrect;
 
     //keep track if orientation change happened in the middle of a game
@@ -169,9 +170,6 @@ public class MainFragment extends Fragment
         else
         {
             playingQuiz = false;
-
-            act.showSnackBar(totalCorrect);
-
         }
 
     }
@@ -192,6 +190,10 @@ public class MainFragment extends Fragment
         currentIndex++;
     }
 
+    public int getTotalCorrect()
+    {
+        return totalCorrect;
+    }
 
     public View getCoordinatorView(){
         return root.findViewById(R.id.coordinator);
@@ -259,6 +261,8 @@ public class MainFragment extends Fragment
         }
 
     }
+
+
 
 
 }

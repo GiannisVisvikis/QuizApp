@@ -1,5 +1,5 @@
 
-package noncom.visvikis.giannis.retrofittest;
+package noncom.visvikis.giannis.knowbetter;
 
 import retrofit2.Call;
 import retrofit2.http.GET;

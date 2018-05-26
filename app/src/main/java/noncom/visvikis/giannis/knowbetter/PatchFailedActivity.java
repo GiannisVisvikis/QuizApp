@@ -1,4 +1,4 @@
-package noncom.visvikis.giannis.retrofittest;
+package noncom.visvikis.giannis.knowbetter;
 
 import android.os.Bundle;
 import android.support.annotation.Nullable;

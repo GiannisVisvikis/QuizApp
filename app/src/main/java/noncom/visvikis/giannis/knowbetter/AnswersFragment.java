@@ -1,4 +1,4 @@
-package noncom.visvikis.giannis.retrofittest;
+package noncom.visvikis.giannis.knowbetter;
 
 import android.content.Context;
 import android.graphics.Color;
@@ -22,6 +22,8 @@ public class AnswersFragment extends Fragment
     public static final String QUESTION_INDEX = "QUESTION_INDEX";
 
     private View root;
+
+    private AppCompatTextView correctTxtView;
 
     private int questionIndex;
     private boolean isBinary;
@@ -150,17 +152,16 @@ public class AnswersFragment extends Fragment
             //will point to index at cardViews array. Whenever this gets to correct index, a listener will be added for correct choice
             int generalIndex = 0;
 
-
             for (AppCompatTextView answerTxtView : answerTxtViews) {
 
                 //make color black again from previous answer
                 answerTxtView.setTextColor(Color.BLACK);
 
                 if (answerTxtView == answerTxtViews[correctIndex]) {   //if this is the position selected at random for the correct answer set the correct answer
-                    final AppCompatTextView correctTextView = answerTxtViews[generalIndex];
+                    correctTxtView = answerTxtViews[generalIndex];
 
                     String rightAnswer = question.getCorrectAnswer();
-                    act.getMainFragment().makeReadable(rightAnswer, correctTextView);
+                    act.getMainFragment().makeReadable(rightAnswer, correctTxtView);
 
                     //set the listener for correct choice to the cardview that holds the text view displaying the correct answer
                     final CardView correctCard = answerCards[generalIndex];
@@ -170,14 +171,14 @@ public class AnswersFragment extends Fragment
                         @Override
                         public void onClick(View v)
                         {
-                            correctTextView.setTextColor(Color.GREEN);
+                            showCorrectChoice();
                             act.getRetainedFragment().playSound(R.raw.success);
                             disableCards(answerCards);
 
                             act.incrementCorrectAnswers();
 
 
-                            correctTextView.postDelayed(new Runnable()
+                            correctTxtView.postDelayed(new Runnable()
                             {
                                 @Override
                                 public void run()
@@ -191,13 +192,14 @@ public class AnswersFragment extends Fragment
                                         act.setupQuestion();
                                     }
                                 }
-                            }, 1000);
+                            }, 1100);
                         }
                     });
 
 
-                } else {   //set a false answer
-
+                }
+                else   //set a false answer
+                {
                     String falseAnswer = question.getFalseAnswers().get(falseIndex);
                     act.getMainFragment().makeReadable(falseAnswer, answerTxtView);
 
@@ -212,9 +214,9 @@ public class AnswersFragment extends Fragment
                         @Override
                         public void onClick(View v)
                         {
-
                             falseTextView.setTextColor(Color.RED);
                             act.getRetainedFragment().playSound(R.raw.wrong_answer);
+                            showCorrectChoice();
 
                             //disable cards. If still enabled the user can take a second guess until the UI refreshes
                             disableCards(answerCards);
@@ -233,7 +235,7 @@ public class AnswersFragment extends Fragment
                                         act.setupQuestion();
                                     }
                                 }
-                            }, 1500);
+                            }, 1100);
                         }
                     });
 
@@ -246,6 +248,10 @@ public class AnswersFragment extends Fragment
 
     }
 
+
+    private void showCorrectChoice(){
+        correctTxtView.setTextColor(Color.GREEN);
+    }
 
 
     private void disableCards(CardView[] answerCards)

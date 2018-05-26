@@ -1,6 +1,6 @@
 
 
-package noncom.visvikis.giannis.retrofittest;
+package noncom.visvikis.giannis.knowbetter;
 
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdView;
@@ -203,7 +203,7 @@ public class MainActivity extends AppCompatActivity implements InterFragmentComm
         super.onStart();
 
 
-        fix this shit what the fuck is wrong here
+        fix this shit ad you r good to go
         if(isDrawerPresent && !getMainFragment().isPlayingQuiz())
             mDrawerLayout.openDrawer(mNavigationView);
 
@@ -235,7 +235,7 @@ public class MainActivity extends AppCompatActivity implements InterFragmentComm
                 return true;
 
             case R.id.action_share:
-                String link = "https://play.google.com/store/apps/details?id=noncom.visvikis.giannis.retrofittest";
+                String link = "https://play.google.com/store/apps/details?id=noncom.visvikis.giannis.knowbetter";
 
                 Intent shareIntent = new Intent(Intent.ACTION_SEND);
                 shareIntent.setType("text/plain");
@@ -288,12 +288,6 @@ public class MainActivity extends AppCompatActivity implements InterFragmentComm
         return this.apiToken;
     }
 
-
-    @Override
-    public MenuFragment getMenuFragment()
-    {
-        return this.menuFragment;
-    }
 
 
     @Override
@@ -422,20 +416,27 @@ public class MainActivity extends AppCompatActivity implements InterFragmentComm
         mainFragment.incrementTotalCorrect();
     }
 
+
     @Override
     public void setupQuestion()
     {
         getMainFragment().incrementCurrentIndex();
         int currentQuestionIndex = getMainFragment().getCurrentIndex();
+
         getMainFragment().setupQuestion(currentQuestionIndex);
-    }
 
+        //if quiz questions are over, replace last question with default UI look
+        if(currentQuestionIndex >= getRetainedFragment().getQuizQuestions().size()){
 
+            int totalCorrect = getMainFragment().getTotalCorrect();
 
-    @Override
-    public void launchNewQuiz()
-    {
-        menuFragment.launchNewQuiz();
+            FragmentManager fm = getSupportFragmentManager();
+            this.mainFragment = new MainFragment();
+            fm.beginTransaction().replace(R.id.main_frag_place, mainFragment, MAIN_FRAGMENT_TAG).commit();
+            fm.executePendingTransactions();
+
+            showSnackBar(totalCorrect);
+        }
     }
 
 
