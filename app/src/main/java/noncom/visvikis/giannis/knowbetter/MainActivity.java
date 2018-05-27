@@ -4,6 +4,7 @@ package noncom.visvikis.giannis.knowbetter;
 
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdView;
+import com.google.android.gms.ads.MobileAds;
 import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.android.gms.security.ProviderInstaller;
 
@@ -57,6 +58,7 @@ public class MainActivity extends AppCompatActivity implements InterFragmentComm
     private String apiToken = ""; //start empty, will change inside onCreate;
 
     private boolean isDrawerPresent = false;
+    private boolean drawerOpen = true;
 
     private DrawerLayout mDrawerLayout;
     private NavigationView mNavigationView;
@@ -92,7 +94,6 @@ public class MainActivity extends AppCompatActivity implements InterFragmentComm
 
         if(savedInstanceState == null){
 
-            //TODO instantiate a retained fragment to keep the adapter used by the app in orientation changes. Get it from there if null and set it to the recycler view
             FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
 
             menuFragment = new MenuFragment();
@@ -121,6 +122,7 @@ public class MainActivity extends AppCompatActivity implements InterFragmentComm
             mainFragment = (MainFragment) fragmentManager.findFragmentByTag(MAIN_FRAGMENT_TAG);
 
             isDrawerPresent = savedInstanceState.getBoolean(DRAWER_PRESENT_TAG);
+            drawerOpen = savedInstanceState.getBoolean(DRAWER_OPEN_TAG);
             apiToken = savedInstanceState.getString(API_TOKEN_TAG);
 
             updatedSecurity = savedInstanceState.getBoolean("SECURITY_DOWNLOADED");
@@ -129,7 +131,6 @@ public class MainActivity extends AppCompatActivity implements InterFragmentComm
 
         if(isDrawerPresent)//small screen mode, navigation drawer present. Set the drawer and handle start click here, handle in menu fragment otherwise
         {
-
             ActionBar actionbar = getSupportActionBar();
             actionbar.setDisplayHomeAsUpEnabled(true);
             actionbar.setHomeAsUpIndicator(R.drawable.ic_menu_24dp);
@@ -137,19 +138,22 @@ public class MainActivity extends AppCompatActivity implements InterFragmentComm
             mNavigationView = findViewById(R.id.nav_view);
             mDrawerLayout = findViewById(R.id.drawer_layout);
 
-            mDrawerLayout.openDrawer(mNavigationView);
+//            if(drawerOpen)
+//                mDrawerLayout.openDrawer(mNavigationView);
 
             mActionBarDrawerToggle = new ActionBarDrawerToggle(MainActivity.this, mDrawerLayout, toolbar, R.string.drawer_open, R.string.drawer_close)
             {
                 public void onDrawerClosed(View view)
                 {
-                    //Toast.makeText(getApplicationContext(), "Drawer is closed", Toast.LENGTH_SHORT).show();
+                    drawerOpen = false;
+                    Log.e("DRAWER_OPEN", drawerOpen + "");
                     invalidateOptionsMenu();
                 }
 
                 public void onDrawerOpened(View drawerView)
                 {
-                    //Toast.makeText(getApplicationContext(), "Drawer is open", Toast.LENGTH_SHORT).show();
+                    drawerOpen = true;
+                    Log.e("DRAWER_OPEN", drawerOpen + "");
                     invalidateOptionsMenu();
                 }
             };
@@ -158,8 +162,8 @@ public class MainActivity extends AppCompatActivity implements InterFragmentComm
 
 
 
-            //Remember to uncomment in the menu fragment as well
-            //MobileAds.initialize(getActivity(), put the app id from admob here);
+            //Remember to comment/uncomment in the menu fragment as well. Increment version in build, replace ids in strings and ur good to go
+            //MobileAds.initialize(this, getResources().getString(R.string.app_id));
 
             // Load an ad into the AdMob banner view.
             AdView adView = findViewById(R.id.adView);
@@ -191,6 +195,7 @@ public class MainActivity extends AppCompatActivity implements InterFragmentComm
 
         outState.putBoolean(DRAWER_PRESENT_TAG, isDrawerPresent);
         outState.putString(API_TOKEN_TAG, apiToken);
+        outState.putBoolean(DRAWER_OPEN_TAG, drawerOpen);
 
         if(Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP)
             outState.putBoolean("SECURITY_DOWNLOADED", updatedSecurity);
@@ -203,8 +208,8 @@ public class MainActivity extends AppCompatActivity implements InterFragmentComm
         super.onStart();
 
 
-        fix this shit ad you r good to go
-        if(isDrawerPresent && !getMainFragment().isPlayingQuiz())
+        //fix this shit ad you r good to go
+        if( isDrawerPresent && (drawerOpen || !getMainFragment().isPlayingQuiz()) )
             mDrawerLayout.openDrawer(mNavigationView);
 
     }
@@ -591,8 +596,6 @@ public class MainActivity extends AppCompatActivity implements InterFragmentComm
         this.finish();
 
     }
-
-
 
 
 }

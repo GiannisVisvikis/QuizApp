@@ -118,7 +118,6 @@ public class MenuFragment extends Fragment
             }
         });
 
-
         quitButton.setOnClickListener(new View.OnClickListener()
         {
             @Override
@@ -131,8 +130,8 @@ public class MenuFragment extends Fragment
         // Load an ad into the AdMob banner view.
         if(getArguments() == null) //if not null drawer is present, adview is loaded elsewhere
         {
-            //Remember to uncomment in the main activity as well
-            //MobileAds.initialize(getActivity(), put the app id from admob here);
+            //Remember to comment/uncomment in the main activity as well. Increment version in build, replace app and banner ids and ur good to go
+            //MobileAds.initialize(getActivity(), getResources().getString(R.string.app_id));
             AdView adView = root.findViewById(R.id.adView);
             AdRequest adRequest = new AdRequest.Builder()
                     .setRequestAgent("android_studio:ad_template").build();
